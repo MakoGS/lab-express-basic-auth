@@ -8,7 +8,13 @@ const logger = require('morgan');
 const sassMiddleware = require('node-sass-middleware');
 const serveFavicon = require('serve-favicon');
 
+const expressSession = require('express-session');
+const MongoStore = require('connect-mongo')(expressSession);
+const mongoose = require('mongoose');
+
 const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+
 
 const app = express();
 
@@ -29,7 +35,37 @@ app.use(sassMiddleware({
   sourceMap: true
 }));
 
+app.use(expressSession({
+  secret: process.env.SESSION_SECRET,
+  cookie: { maxAge: 60 * 60 * 24 * 1000 },
+  resave: true,
+  saveUninitialized: false,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    ttl: 24 * 60 * 60
+  })
+}));
+
+// TRYING TO UPDATE NAME.
+// app.use((req, res, next) => {
+//   if (res.locals.user) {
+//     User.findOne()
+//     .then(user => {
+//       req.session.user = user;
+//     });
+//     next()
+//     .catch(err => err);
+//   }
+//   else next(); 
+// });
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user;
+  next();
+});
+
 app.use('/', indexRouter);
+app.use('/auth', authRouter);
 
 // Catch missing routes and forward to error handler
 app.use((req, res, next) => {

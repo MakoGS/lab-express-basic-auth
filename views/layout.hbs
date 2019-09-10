@@ -5,6 +5,19 @@
     <link rel='stylesheet' href='/styles/style.css' />
   </head>
   <body>
+    <nav>
+      <ul>
+        <li><a href="/">Home</li></a>
+        <li><a href="/auth/sign-up">Sign up</li></a>
+        <li><a href="/auth/sign-in">Sign in</li></a>
+        {{#if user}}
+                <li><a href="main">Main</li></a>
+        <li><a href="private">Private</li></a>
+        <li><a href="profile">My profile</li></a>
+        <li>Hello {{user.email}}</li>
+        {{/if}}
+        </ul>
+        </nav>
     {{{body}}}
   </body>
 </html>
